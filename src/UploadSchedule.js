@@ -60,7 +60,7 @@ const UploadSchedule = () => {
     const updates = {};
 
     drivers.forEach((driver) => {
-      updates[drivers/${driver.driver}] = driver.availability;
+      updates[`drivers/${driver.driver}`] = driver.availability;
     });
 
     db.ref().update(updates)
