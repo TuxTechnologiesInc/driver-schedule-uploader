@@ -1,8 +1,7 @@
 // src/UploadSchedule.js
-import React, { useState } from 'react';
-import * as XLSX from 'xlsx';
-import firebase from 'firebase/app';
-import 'firebase/database'; // or 'firebase/firestore' if you prefer Firestore
+import React, { useEffect, useState } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, update } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBD__09hW4pjR2saUqZAyH9nyNlrPcwYAQ",
@@ -14,76 +13,42 @@ const firebaseConfig = {
   measurementId: "G-JJG2GED2EK"
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-const UploadSchedule = () => {
-  const [file, setFile] = useState(null);
+function UploadSchedule() {
+  const [drivers, setDrivers] = useState([]);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleUpload = () => {
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const data = new Uint8Array(event.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-      const drivers = parseData(jsonData);
-      uploadToFirebase(drivers);
-    };
-    reader.readAsArrayBuffer(file);
-  };
-
-  const parseData = (data) => {
-    const headers = data[0].slice(1); // Skip the first column (Driver names)
-    const drivers = [];
-
-    for (let i = 1; i < data.length; i++) {
-      const driverName = data[i][0];
-      const availability = {};
-
-      headers.forEach((day, index) => {
-        availability[day] = data[i][index + 1] === 'x'; // Check if available
-      });
-
-      drivers.push({ driver: driverName, availability });
-    }
-
-    return drivers;
-  };
-
-  const uploadToFirebase = (drivers) => {
-    const db = firebase.database();
+  // Example function to update driver availability
+  const updateDriverAvailability = () => {
     const updates = {};
-
     drivers.forEach((driver) => {
       updates[`drivers/${driver.driver}`] = driver.availability;
     });
 
-    db.ref().update(updates)
+    update(ref(db), updates)
       .then(() => {
-        alert('Data uploaded successfully!');
+        console.log('Database updated successfully');
       })
       .catch((error) => {
-        console.error('Error uploading data:', error);
+        console.error('Error updating database:', error);
       });
   };
 
+  // Example useEffect to fetch drivers or set initial state
+  useEffect(() => {
+    // Fetch drivers or set initial state here
+    // setDrivers([...]); // Example: setDrivers([{ driver: 'John', availability: true }, ...]);
+  }, []);
+
   return (
     <div>
-      <h1>Upload Driver Schedule</h1>
-      <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload</button>
+      <h1>Upload Schedule</h1>
+      {/* Your component UI here */}
+      <button onClick={updateDriverAvailability}>Update Availability</button>
     </div>
   );
-};
+}
 
-export default UploadSchedule; 
+export default UploadSchedule;
