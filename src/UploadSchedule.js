@@ -4,9 +4,14 @@ import * as XLSX from 'xlsx';
 import firebase from 'firebase/app';
 import 'firebase/database'; // or 'firebase/firestore' if you prefer Firestore
 
-// Initialize Firebase
 const firebaseConfig = {
-  // Your Firebase configuration
+  apiKey: "AIzaSyBD__09hW4pjR2saUqZAyH9nyNlrPcwYAQ",
+  authDomain: "tuxdev-a23d9.firebaseapp.com",
+  projectId: "tuxdev-a23d9",
+  storageBucket: "tuxdev-a23d9.appspot.com",
+  messagingSenderId: "392547723678",
+  appId: "1:392547723678:web:b3d0623597975b7c580e8f",
+  measurementId: "G-JJG2GED2EK"
 };
 
 if (!firebase.apps.length) {
